@@ -22,7 +22,7 @@ MAX_CSV_BYTES = 1_000_000
 MAX_CSV_ROWS = 50
 
 # ===== إنشاء التطبيق وربط مجلد الملفات الثابتة (CSS و JS) =====
-app = FastAPI(title="Insurance Savings Research Engine", version="0.2.0")
+app = FastAPI(title="BestQoute", version="0.3.0")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 

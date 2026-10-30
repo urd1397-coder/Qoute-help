@@ -205,7 +205,7 @@
       if (!q.company || !(q.monthly_premium > 0)) { showError("Each quote needs a company name and a monthly premium above 0."); return; }
     }
     $("analyze").disabled = true;
-    $("analyze").textContent = "Digging...";
+    $("analyze").textContent = "Comparing...";
     fetch("/api/compare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
       .then(function (res) {
@@ -221,7 +221,7 @@
       .catch(function () { showError("Could not reach the server. Try again in a moment (free hosting may be waking up)."); })
       .finally(function () {
         $("analyze").disabled = false;
-        $("analyze").textContent = "Find my cheapest legal price";
+        $("analyze").textContent = "Find my lowest price";
       });
   });
 

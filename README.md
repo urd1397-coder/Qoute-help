@@ -1,4 +1,4 @@
-# Insurance Savings Research Engine (v0.2)
+# BestQoute (v0.3)
 
 A free web app that takes real, user-entered auto insurance quotes, checks every **legitimate savings lever** against the shopper's truthful profile, and shows how close they can get to a monthly target (default $200). It ends with a **buy-ready packet** the shopper takes to the insurer for the official quote.
 
