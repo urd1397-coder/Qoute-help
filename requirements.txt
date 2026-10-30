@@ -1,0 +1,11 @@
+# -*- coding: utf-8 -*-
+# الملف: requirements.txt — مكتبات بايثون المطلوبة
+# يقرؤه Render عند البناء (pip install -r requirements.txt).
+# إطار عمل الخادم (واجهات API)
+fastapi>=0.110
+# مشغّل الخادم
+uvicorn[standard]>=0.29
+# مطلوب لرفع ملفات CSV
+python-multipart>=0.0.9
+# التحقق من صحة البيانات (النسخة 2 فقط)
+pydantic>=2.6,<3

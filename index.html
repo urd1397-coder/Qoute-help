@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--
+    الملف: app/static/index.html — الصفحة الرئيسية (هيكل الواجهة)
+    ما يفعله: يحتوي على نماذج الإدخال (الهدف، الملف الشخصي، التغطية، العروض) ومكان عرض النتائج.
+    متى تعدّله: لإضافة حقل أو خانة اختيار جديدة (واربطها بـ app.js وبـ models.py).
+  -->
+  <title>Insurance Savings Engine</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<!-- ===== رأس الصفحة: العنوان والتنبيه ===== -->
+<header>
+  <h1>Insurance Savings Engine</h1>
+  <p class="sub">Enter real quotes. The engine checks every legitimate savings lever and tells you how close you can get to your target.</p>
+  <p class="notice"><strong>Truthful inputs only.</strong> Savings come from legal levers (discounts, timing, coverage choices, shopping around). Misstating information on an application can void claims or get a policy canceled.</p>
+</header>
+
+<main>
+  <section class="card">
+    <!-- ===== القسم 1: الهدف الشهري والملف الشخصي ===== -->
+    <h2>1. Your target and profile</h2>
+    <div class="grid">
+      <label>Monthly target ($)<input id="target" type="number" min="1" value="200"></label>
+      <label>State (2 letters)<input id="p_state" maxlength="2" placeholder="FL"></label>
+      <label>Vehicles<input id="p_vehicles" type="number" min="1" max="10" value="1"></label>
+      <label>Drivers<input id="p_drivers" type="number" min="1" max="10" value="1"></label>
+      <label>Annual miles (optional)<input id="p_miles" type="number" min="0" placeholder="12000"></label>
+      <label>Oldest car value $ (optional)<input id="p_value" type="number" min="0" placeholder="4000"></label>
+      <label>Days until renewal/start (optional)<input id="p_days" type="number" min="0" placeholder="14"></label>
+    </div>
+    <!-- ===== خانات "ما الصحيح عنك": يقرؤها app.js عبر data-bool وأسماؤها نفس حقول Profile في models.py ===== -->
+    <h3>What is true for you</h3>
+    <div class="checks" id="profile-checks">
+      <label><input type="checkbox" data-bool="homeowner"> Homeowner</label>
+      <label><input type="checkbox" data-bool="has_bundle_policy"> Have home/renters policy to bundle</label>
+      <label><input type="checkbox" data-bool="employer_or_group"> Employer / alumni / union / professional group</label>
+      <label><input type="checkbox" data-bool="military"> Military / veteran</label>
+      <label><input type="checkbox" data-bool="good_student"> Good student</label>
+      <label><input type="checkbox" data-bool="clean_record_3yr"> No at-fault accidents or tickets in 3 years</label>
+      <label><input type="checkbox" data-bool="continuous_coverage"> No lapse in coverage</label>
+      <label><input type="checkbox" data-bool="vehicle_safety_features"> Vehicle safety / anti-theft features</label>
+      <label><input type="checkbox" data-bool="willing_telematics"> Willing to use telematics</label>
+      <label><input type="checkbox" data-bool="willing_pay_in_full"> Can pay in full</label>
+      <label><input type="checkbox" data-bool="autopay_ok" checked> OK with autopay</label>
+      <label><input type="checkbox" data-bool="paperless_ok" checked> OK with paperless</label>
+      <label><input type="checkbox" data-bool="willing_defensive_course"> Willing to take a defensive driving course</label>
+    </div>
+  </section>
+
+  <section class="card">
+    <!-- ===== القسم 2: التغطية المطلوبة للمقارنة ===== -->
+    <h2>2. Coverage you want to compare</h2>
+    <p class="hint">Leave blank to use the most common coverage among your quotes.</p>
+    <div class="grid">
+      <label>Bodily injury limit<input id="c_bi" placeholder="100/300"></label>
+      <label>Property damage limit<input id="c_pd" placeholder="100"></label>
+      <label>Comprehensive deductible<input id="c_comp" placeholder="500"></label>
+      <label>Collision deductible<input id="c_coll" placeholder="500"></label>
+    </div>
+  </section>
+
+  <section class="card">
+    <!-- ===== القسم 3: عروض الأسعار (إضافة يدوية أو استيراد CSV) ===== -->
+    <h2>3. Your quotes</h2>
+    <div class="row">
+      <button id="add-quote" type="button">+ Add quote</button>
+      <label class="file">Import CSV<input id="csv-file" type="file" accept=".csv,text/csv"></label>
+    </div>
+    <p class="hint">CSV columns: company, state, monthly_premium (required). Optional: fees_monthly, bodily_injury_limit, property_damage_limit, comp_deductible, collision_deductible, vehicles, drivers, applied_discounts (semicolon-separated ids), quote_date, source, notes.</p>
+    <div id="csv-msg" class="hint" role="status"></div>
+    <div id="quotes"></div>
+  </section>
+
+  <!-- ===== زر البحث عن أرخص سعر ===== -->
+  <button id="analyze" class="primary" type="button">Find my cheapest legal price</button>
+  <div id="error" class="error" role="alert" hidden></div>
+
+  <!-- ===== مكان عرض النتائج (يملؤه app.js) ===== -->
+  <section id="results" hidden></section>
+</main>
+
+<!-- ===== التذييل: إخلاء المسؤولية ===== -->
+<footer>
+  <p id="disclaimer" class="hint"></p>
+</footer>
+<!-- ===== ملف الجافاسكربت ===== -->
+<script src="/static/app.js"></script>
+</body>
+</html>

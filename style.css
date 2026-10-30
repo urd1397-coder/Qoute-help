@@ -1,0 +1,81 @@
+@charset "UTF-8";
+/* ============================================================
+   الملف: app/static/style.css — تنسيق الصفحة (الألوان والخطوط والبطاقات)
+   ما يفعله: يحدد شكل الصفحة بالوضعين الفاتح والداكن.
+   متى تعدّله: لتغيير الألوان (المتغيرات في أول الملف) أو أحجام الخطوط أو شكل البطاقات.
+   ============================================================ */
+/* ===== الألوان الأساسية (الوضع الفاتح) ===== */
+:root {
+  --bg: #f6f7f9; --card: #ffffff; --text: #1b1f24; --muted: #5b6573; --line: #dfe3e8;
+  --accent: #0b6bcb; --good: #0f7b45; --warn: #a15c00; --bad: #b3261e; --soft: #eef4fb;
+}
+/* ===== ألوان الوضع الداكن ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151a; --card: #1b2028; --text: #e8ebef; --muted: #9aa5b4; --line: #2c3440;
+    --accent: #5aa7ff; --good: #4cc38a; --warn: #f0b34d; --bad: #ff8a80; --soft: #212a37;
+  }
+}
+/* ===== القواعد العامة: الجسم والعناوين والنصوص ===== */
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+header, main, footer { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+header { padding-top: 24px; }
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+h2 { font-size: 1.15rem; margin: 0 0 10px; }
+h3 { font-size: 1rem; margin: 14px 0 6px; }
+.sub { color: var(--muted); margin: 0 0 10px; }
+.notice { background: var(--soft); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 0 0 16px; font-size: .92rem; }
+/* ===== البطاقات والحقول والأزرار ===== */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; color: var(--muted); }
+input[type=text], input[type=number], input:not([type]) {
+  font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 8px; padding: 9px 10px; width: 100%;
+}
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 6px 14px; }
+.checks label, .chips label { flex-direction: row; align-items: center; gap: 8px; color: var(--text); font-size: .92rem; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--text); padding: 9px 14px; }
+button.primary { width: 100%; background: var(--accent); color: #fff; border: 0; padding: 14px; font-weight: 600; font-size: 1.05rem; margin-bottom: 14px; }
+button.link { border: 0; background: none; color: var(--bad); padding: 4px 8px; }
+/* ===== زر استيراد ملف CSV ===== */
+.file { position: relative; flex-direction: row; border: 1px solid var(--line); border-radius: 8px; padding: 9px 14px; color: var(--text); cursor: pointer; }
+.file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.hint { color: var(--muted); font-size: .85rem; margin: 6px 0; }
+/* ===== رسالة الخطأ ===== */
+.error { background: color-mix(in srgb, var(--bad) 14%, var(--card)); border: 1px solid var(--bad); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; }
+/* ===== بطاقة عرض السعر والخصومات القابلة للطي ===== */
+.quote { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-top: 12px; background: var(--bg); }
+.quote .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 600; }
+details { margin-top: 8px; }
+summary { cursor: pointer; color: var(--accent); font-size: .9rem; }
+.chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 4px 12px; margin-top: 8px; }
+
+/* ===== نتائج التحليل: الحكم وبطاقات العروض وشريط الهدف والتقديرات ===== */
+.verdict { border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--line); background: var(--card); }
+.verdict.good { border-color: var(--good); }
+.verdict.warn { border-color: var(--warn); }
+.verdict.bad { border-color: var(--bad); }
+.verdict h2 { margin: 0 0 6px; }
+.result { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+.result .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.result .name { font-weight: 700; font-size: 1.05rem; }
+.price { font-size: 1.25rem; font-weight: 700; }
+.bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin: 8px 0; }
+.bar > span { display: block; height: 100%; background: var(--accent); }
+.bar.met > span { background: var(--good); }
+.badge { display: inline-block; font-size: .75rem; border-radius: 99px; padding: 2px 8px; border: 1px solid var(--line); margin-right: 6px; }
+.badge.ok { color: var(--good); border-color: var(--good); }
+.badge.no { color: var(--warn); border-color: var(--warn); }
+.proj { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 8px 0; }
+.proj div { background: var(--soft); border-radius: 8px; padding: 8px 10px; font-size: .85rem; color: var(--muted); }
+.proj b { display: block; color: var(--text); font-size: 1.05rem; }
+/* ===== القوائم وحزمة الشراء والتذييل ===== */
+ul { margin: 6px 0; padding-left: 20px; }
+li { margin: 3px 0; }
+li small { color: var(--muted); display: block; }
+.warnings li { color: var(--warn); }
+pre.packet { white-space: pre-wrap; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: .85rem; overflow-x: auto; }
+footer { padding-bottom: 32px; }
