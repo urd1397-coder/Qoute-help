@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: insurance-savings-engine
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 75 --timeout-graceful-shutdown 10
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: PYTHONUNBUFFERED
+        value: "1"
