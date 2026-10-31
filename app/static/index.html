@@ -96,9 +96,28 @@
     </div>
   </section>
 
+  <section class="card" id="planner">
+    <!-- ===== القسم 5: مخطِّط العروض: كل الطرق الصادقة لخفض السعر ===== -->
+    <h2><span class="num">5</span>Quote plan</h2>
+    <p class="hint">Builds the list of honest ways to lower this client's price. You ask each insurer for those versions, enter the real prices, and BestQoute finds the cheapest and what moved the price. Only the insurer can issue the actual quote.</p>
+    <button id="build-plan" type="button" class="secondary">Build the quote plan</button>
+    <div id="plan-body" hidden>
+      <div id="plan-scenarios"></div>
+      <h3>Insurers you are quoting</h3>
+      <div class="row">
+        <input id="ins-name" placeholder="Insurer name" autocomplete="off" aria-label="Insurer name">
+        <button id="ins-add" type="button" class="secondary">Add insurer</button>
+      </div>
+      <div id="ins-suggest" class="chiprow"></div>
+      <div id="plan-grid"></div>
+      <button id="plan-best" type="button" class="secondary">Find the cheapest</button>
+      <div id="plan-results"></div>
+    </div>
+  </section>
+
   <section class="card">
-    <!-- ===== القسم 5: عروض الأسعار (إضافة يدوية أو استيراد CSV) ===== -->
-    <h2><span class="num">5</span>Quotes you have</h2>
+    <!-- ===== القسم 6: عروض الأسعار (إضافة يدوية أو استيراد CSV) ===== -->
+    <h2><span class="num">6</span>Quotes you have</h2>
     <p class="hint">Add one card for each real quote from an insurer, or import them from a CSV file.</p>
     <div class="row">
       <button id="add-quote" type="button" class="secondary">+ Add quote</button>
@@ -131,5 +150,6 @@
 </footer>
 <!-- ===== ملف الجافاسكربت ===== -->
 <script src="/static/app.js"></script>
+<script src="/static/planner.js"></script>
 </body>
 </html>

@@ -104,6 +104,7 @@
     $("quotes").appendChild(card);
   }
   $("add-quote").addEventListener("click", function () { addQuote(); });
+  window.bqAddQuote = addQuote; // يستخدمها planner.js لإضافة أرخص عرض إلى قائمة العروض
 
   // ===== استيراد ملف CSV =====
   // ---------- CSV import ----------

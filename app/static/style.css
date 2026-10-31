@@ -170,3 +170,23 @@ footer .hint { color: #aeacbf; margin: 0; max-width: 70ch; }
   #summary { position: absolute; inset: 0 auto auto 0; width: 100%; border: 0; margin: 0; }
   .no-print { display: none !important; }
 }
+
+/* ===== مخطِّط العروض: السيناريوهات والشبكة والنتائج ===== */
+.plan-list { padding-left: 22px; }
+.plan-list li { margin: 10px 0; }
+.risk { display: inline-block; font-size: .75rem; font-weight: 600; border-radius: 99px; padding: 2px 9px; margin-left: 4px; background: var(--good-soft); color: var(--good); }
+.risk.low { background: var(--purple-soft); color: var(--purple-dark); }
+.risk.medium { background: var(--warn-soft); color: var(--warn); }
+.risk.high { background: var(--bad-soft); color: var(--bad); }
+.chiprow { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+button.chip { padding: 6px 14px; font-size: .85rem; font-weight: 500; }
+.plan-scroll { overflow-x: auto; border: 1.5px solid var(--line); border-radius: 14px; margin: 14px 0 4px; }
+.plan-table { border-collapse: collapse; width: max-content; min-width: 100%; }
+.plan-table th, .plan-table td { padding: 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.plan-table thead th { font-size: .78rem; font-weight: 700; color: var(--muted); max-width: 150px; min-width: 120px; background: var(--card); }
+.plan-table tbody th { position: sticky; left: 0; background: var(--card); min-width: 150px; font-weight: 700; z-index: 1; }
+.plan-table tbody th span { display: block; }
+.plan-table input { width: 110px; padding: 8px 10px; }
+#plan-results { margin-top: 18px; }
+.warn-note { color: var(--warn); background: var(--warn-soft); border-radius: 10px; padding: 10px 12px; font-size: .9rem; font-weight: 500; }
+#planner #plan-best { margin-top: 12px; }
