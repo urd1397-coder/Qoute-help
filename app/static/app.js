@@ -134,18 +134,79 @@
       .finally(function () { e.target.value = ""; });
   });
 
+  // ===== بطاقات السيارات والسائقين (تبقى في المتصفح ولا تُرسل إلى الخادم) =====
+  // ---------- vehicle + driver cards ----------
+  var lastClient = null;
+  var lastPayload = null;
+  function personCard(container, title, fields) {
+    var card = h("div", { "class": "quote person" });
+    var remove = h("button", { type: "button", "class": "link", text: "Remove" });
+    remove.addEventListener("click", function () {
+      var count = container.querySelectorAll(".person").length;
+      if (count > 1) card.remove();
+    });
+    card.appendChild(h("div", { "class": "head" }, h("span", { text: title }), remove));
+    var grid = h("div", { "class": "grid" });
+    fields.forEach(function (f) { grid.appendChild(f); });
+    card.appendChild(grid);
+    container.appendChild(card);
+    return card;
+  }
+  function addVehicle() {
+    var n = $("vehicles").querySelectorAll(".person").length + 1;
+    personCard($("vehicles"), "Vehicle " + n, [
+      field("VIN (17 characters)", "v-vin", "Optional if you enter year, make and model"),
+      field("Year", "v-year", "2018", "number"),
+      field("Make", "v-make", "Toyota"),
+      field("Model", "v-model", "Camry"),
+      field("Estimated value, $ (optional)", "v-value", "9000", "number"),
+      field("Miles driven per year (optional)", "v-miles", "12000", "number")
+    ]);
+  }
+  function addDriver() {
+    var n = $("drivers").querySelectorAll(".person").length + 1;
+    personCard($("drivers"), "Driver " + n, [
+      field("Full name", "d-name", "Full name"),
+      field("Date of birth", "d-dob", "", "date")
+    ]);
+  }
+  $("add-vehicle").addEventListener("click", addVehicle);
+  $("add-driver").addEventListener("click", addDriver);
+  addVehicle();
+  addDriver();
+
+  // قراءة قيم البطاقات في قائمة كائنات (تتجاهل البطاقات الفارغة)
+  function readCards(selector, map) {
+    var out = [];
+    document.querySelectorAll(selector).forEach(function (card) {
+      var item = {}, any = false;
+      Object.keys(map).forEach(function (k) {
+        item[k] = card.querySelector(map[k]).value.trim();
+        if (item[k]) any = true;
+      });
+      if (any) out.push(item);
+    });
+    return out;
+  }
+
   // ===== جمع المدخلات وإرسالها للتحليل =====
   // ---------- collect + analyze ----------
   // قراءة كل القيم من الصفحة وتجميعها في طلب واحد
   function collect() {
+    // السيارات والسائقون: العدد يُرسل للخادم، أما الأسماء والـ VIN فتبقى في المتصفح فقط
+    var vehicleList = readCards("#vehicles .person", { vin: ".v-vin", year: ".v-year", make: ".v-make", model: ".v-model", value: ".v-value", miles: ".v-miles" });
+    var driverList = readCards("#drivers .person", { name: ".d-name", dob: ".d-dob" });
+    var values = vehicleList.map(function (v) { return Number(v.value); }).filter(function (n) { return n > 0; });
+    var miles = vehicleList.map(function (v) { return Number(v.miles); }).filter(function (n) { return n > 0; });
     var profile = {
       state: $("p_state").value.trim(),
-      vehicles: Number($("p_vehicles").value) || 1,
-      drivers: Number($("p_drivers").value) || 1,
-      annual_miles: numOrNull("p_miles"),
-      oldest_vehicle_value: numOrNull("p_value"),
+      vehicles: Math.min(Math.max(vehicleList.length, 1), 10),
+      drivers: Math.min(Math.max(driverList.length, 1), 10),
+      annual_miles: miles.length === vehicleList.length && miles.length ? Math.max.apply(null, miles) : null,
+      oldest_vehicle_value: values.length ? Math.min.apply(null, values) : null,
       days_before_renewal: numOrNull("p_days")
     };
+    lastClient = { name: $("p_client").value.trim(), state: profile.state, zip: $("p_zip").value.trim(), vehicles: vehicleList, drivers: driverList };
     document.querySelectorAll("#profile-checks input[data-bool]").forEach(function (cb) {
       profile[cb.dataset.bool] = cb.checked;
     });
@@ -199,6 +260,7 @@
   $("analyze").addEventListener("click", function () {
     showError("");
     var payload = collect();
+    lastPayload = payload;
     if (!payload.quotes.length) { showError("Add at least one quote with a company and monthly premium."); return; }
     for (var i = 0; i < payload.quotes.length; i++) {
       var q = payload.quotes[i];
@@ -221,7 +283,7 @@
       .catch(function () { showError("Could not reach the server. Try again in a moment (free hosting may be waking up)."); })
       .finally(function () {
         $("analyze").disabled = false;
-        $("analyze").textContent = "Find my lowest price";
+        $("analyze").textContent = "Find the lowest price";
       });
   });
 
@@ -287,7 +349,56 @@
     return card;
   }
 
-  // عرض الحكم النهائي والعروض المرتّبة وحزمة الشراء
+  // ===== ملخص العرض النهائي للعميل (يمكن طباعته أو حفظه PDF) =====
+  // ---------- client quote summary ----------
+  function row(dl, label, value) {
+    if (!value) return;
+    dl.appendChild(h("dt", { text: label }));
+    dl.appendChild(h("dd", { text: value }));
+  }
+  function buildSummary(data) {
+    var best = data.results[0];
+    var c = lastClient || { vehicles: [], drivers: [] };
+    var q = ((lastPayload && lastPayload.quotes) || []).filter(function (x) { return x.company === best.company; })[0] || {};
+    var cov = (lastPayload && lastPayload.desired_coverage) || {};
+    var pick = function (a, b) { return a || b || ""; };
+    var vehicleText = c.vehicles.map(function (v) {
+      var name = [v.year, v.make, v.model].filter(Boolean).join(" ");
+      return (name || "Vehicle") + (v.vin ? " (VIN " + v.vin + ")" : "");
+    }).join("; ");
+    var driverText = c.drivers.map(function (d) { return d.name || "Driver"; }).join(", ");
+    var today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+    var box = h("div", { "class": "summary", id: "summary" });
+    box.appendChild(h("h2", { text: "Quote summary" + (c.name ? " for " + c.name : "") }));
+    box.appendChild(h("p", { "class": "sub", text: "Prepared " + today + " by BestQoute" }));
+    box.appendChild(h("p", { "class": "bigprice", text: money(best.effective_monthly) + " per month" }));
+    box.appendChild(h("p", { "class": "sub", text: best.company + ": " + money(best.annual_cost) + " per year" }));
+    var dl = h("dl");
+    row(dl, "Client", c.name);
+    row(dl, "Location", [c.state, c.zip].filter(Boolean).join(" "));
+    row(dl, "Vehicles", vehicleText);
+    row(dl, "Drivers", driverText);
+    row(dl, "Bodily injury", pick(cov.bodily_injury_limit, q.bodily_injury_limit));
+    row(dl, "Property damage", pick(cov.property_damage_limit, q.property_damage_limit));
+    row(dl, "Comprehensive deductible", pick(cov.comp_deductible, q.comp_deductible));
+    row(dl, "Collision deductible", pick(cov.collision_deductible, q.collision_deductible));
+    row(dl, "Target", money(data.target) + " per month (" + (best.effective_monthly <= data.target ? "met" : "not met yet") + ")");
+    box.appendChild(dl);
+    if (best.untapped && best.untapped.length) {
+      box.appendChild(h("h3", { text: "Ask the insurer to apply" }));
+      var ul = h("ul");
+      best.untapped.forEach(function (l) { ul.appendChild(h("li", { text: l.ask })); });
+      box.appendChild(ul);
+    }
+    box.appendChild(h("p", { "class": "fine", text: "This summary is based on a quote entered from the insurer and a savings review. It is not a binding offer. The insurer sets the final price when the policy is issued." }));
+    var print = h("button", { type: "button", "class": "secondary no-print", text: "Print or save as PDF" });
+    print.addEventListener("click", function () { window.print(); });
+    box.appendChild(print);
+    return box;
+  }
+
+  // عرض الحكم النهائي والعروض المرتّبة وملخص العرض
   function render(data) {
     var box = $("results");
     box.replaceChildren();
@@ -299,17 +410,7 @@
     box.appendChild(h("h2", { text: "Ranked quotes" }));
     data.results.forEach(function (r) { box.appendChild(resultCard(r, data.target)); });
 
-    var pk = data.packet;
-    var pre = h("pre", { "class": "packet", text: pk.text });
-    var copy = h("button", { type: "button", text: "Copy packet" });
-    copy.addEventListener("click", function () {
-      var done = function () { copy.textContent = "Copied"; setTimeout(function () { copy.textContent = "Copy packet"; }, 1500); };
-      if (navigator.clipboard) navigator.clipboard.writeText(pk.text).then(done, function () {});
-    });
-    box.appendChild(h("div", { "class": "card" },
-      h("h2", { text: "Buy-ready packet" }),
-      h("p", { "class": "hint", text: "Take this to the insurer to get the official quote. The estimate is not the final price." }),
-      pre, copy));
+    box.appendChild(buildSummary(data));
     box.appendChild(h("p", { "class": "hint", text: data.disclaimer }));
     box.hidden = false;
     box.scrollIntoView({ behavior: "smooth", block: "start" });

@@ -3,12 +3,15 @@
 # ما يفعله: يشغّل تطبيق FastAPI ويعرض الصفحة الرئيسية ويوفّر نقاط الاتصال: /api/health و /api/levers و /api/compare و /api/import-csv.
 # متى تعدّله: لإضافة نقطة API جديدة أو لتغيير حدود رفع ملف CSV.
 # ============================================================
+import base64
 import csv
+import hmac
 import io
+import os
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 
@@ -24,6 +27,38 @@ MAX_CSV_ROWS = 50
 # ===== إنشاء التطبيق وربط مجلد الملفات الثابتة (CSS و JS) =====
 app = FastAPI(title="BestQoute", version="0.3.0")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# ===== حماية الموقع بكلمة مرور: المالك فقط يفتح الموقع =====
+# كلمة المرور تُضبط في Render كمتغير بيئة باسم BESTQOUTE_PASSWORD. إن لم تُضبط يبقى الموقع مقفلاً.
+# مسار /api/health وحده يبقى مفتوحاً (يعيد {"status": "ok"} فقط) ليعمل فحص الصحة ومراقب التوقف.
+OPEN_PATHS = {"/api/health"}
+
+
+@app.middleware("http")
+async def require_password(request: Request, call_next):
+    if request.url.path in OPEN_PATHS:
+        return await call_next(request)
+    password = os.environ.get("BESTQOUTE_PASSWORD", "")
+    if not password:
+        return PlainTextResponse(
+            "BestQoute is locked. Set the BESTQOUTE_PASSWORD environment variable in Render to open it.",
+            status_code=503,
+        )
+    supplied = ""
+    header = request.headers.get("authorization", "")
+    if header.lower().startswith("basic "):
+        try:
+            decoded = base64.b64decode(header[6:].strip()).decode("utf-8")
+            supplied = decoded.partition(":")[2]  # the username is ignored; only the password counts
+        except Exception:
+            supplied = ""
+    if not supplied or not hmac.compare_digest(supplied.encode("utf-8"), password.encode("utf-8")):
+        return Response(
+            "Password required.",
+            status_code=401,
+            headers={"WWW-Authenticate": 'Basic realm="BestQoute", charset="UTF-8"'},
+        )
+    return await call_next(request)
 
 
 # ===== الصفحة الرئيسية =====

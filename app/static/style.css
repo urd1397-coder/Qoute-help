@@ -6,11 +6,11 @@
    ============================================================ */
 /* ===== الألوان الأساسية ===== */
 :root {
-  --black: #000000; --white: #ffffff;
-  --text: #1f1f24; --muted: #5c5c68; --line: #e4e4ea; --field: #cfcfd8;
-  --purple: #6d28d9; --purple-dark: #5b21b6; --purple-soft: #f4efff; --purple-light: #a78bfa;
-  --good: #0f7b45; --warn: #9a5b00; --bad: #b3261e;
-  --good-soft: #e7f6ee; --warn-soft: #fff3dc; --bad-soft: #fdeceb;
+  --black: #1c1b23; --white: #f4f3f8; --card: #fbfbfe;
+  --text: #2a2933; --muted: #5f5e6b; --line: #deddea; --field: #c6c4d4;
+  --purple: #6f55d8; --purple-dark: #5a43b8; --purple-soft: #eeeafa; --purple-light: #b3a3f0;
+  --good: #1b7a4b; --warn: #8f5a0a; --bad: #a93226;
+  --good-soft: #e5f3ec; --warn-soft: #faf0dc; --bad-soft: #f9e9e7;
   --sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 /* ===== القواعد العامة: الجسم والعناوين والنصوص ===== */
@@ -29,9 +29,9 @@ p { margin: 0 0 10px; }
 .hero { background: var(--black); color: var(--white); padding: 22px 16px 56px; }
 .hero-inner { max-width: 880px; margin: 0 auto; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; letter-spacing: -.01em; }
-.brand svg { width: 32px; height: 32px; flex: none; }
+.brand .logo { width: 38px; height: 38px; flex: none; }
 .hero h1 { font-size: clamp(2.1rem, 6.5vw, 3.6rem); line-height: 1.04; letter-spacing: -.035em; font-weight: 800; max-width: 17ch; margin: 52px 0 16px; }
-.lead { color: #cfcfd8; font-size: 1.08rem; max-width: 52ch; margin: 0 0 36px; }
+.lead { color: #c9c7d8; font-size: 1.08rem; max-width: 52ch; margin: 0 0 36px; }
 /* حقل الهدف الشهري الكبير: العنصر المميز في الصفحة */
 label.target { display: block; font-size: 1rem; }
 .target-label { display: block; color: var(--white); font-weight: 600; margin-bottom: 6px; }
@@ -44,16 +44,16 @@ label.target { display: block; font-size: 1rem; }
 .hero .target input[type=number]::-webkit-outer-spin-button,
 .hero .target input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .hero .target input[type=number]:focus { outline: none; border-bottom-color: var(--white); }
-.per { color: #cfcfd8; font-size: 1.1rem; font-weight: 500; margin-left: 10px; }
+.per { color: #c9c7d8; font-size: 1.1rem; font-weight: 500; margin-left: 10px; }
 
 /* ===== الملاحظة والبطاقات والحقول ===== */
 .notice { background: var(--purple-soft); border-left: 5px solid var(--purple); border-radius: 4px 12px 12px 4px; padding: 14px 16px; margin: 0 0 24px; font-size: .94rem; color: var(--text); }
-.card { background: var(--white); border: 1.5px solid var(--line); border-radius: 18px; padding: 26px 24px; margin-bottom: 20px; }
+.card { background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; padding: 26px 24px; margin-bottom: 20px; }
 .num { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--purple); color: var(--white); font-size: .95rem; font-weight: 700; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 16px; }
 label { display: flex; flex-direction: column; gap: 6px; font-size: .88rem; font-weight: 600; color: var(--text); }
 input[type=text], input[type=number], input:not([type]) {
-  font: 400 1rem var(--sans); color: var(--black); background: var(--white); border: 1.5px solid var(--field);
+  font: 400 1rem var(--sans); color: var(--black); background: var(--card); border: 1.5px solid var(--field);
   border-radius: 10px; padding: 11px 12px; width: 100%; transition: border-color .15s, box-shadow .15s;
 }
 input::placeholder { color: #8d8d99; }
@@ -71,7 +71,7 @@ input[type=checkbox] { accent-color: var(--purple); width: 18px; height: 18px; m
 
 /* ===== الأزرار ===== */
 .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
-button { font: 600 .95rem var(--sans); cursor: pointer; border-radius: 999px; border: 1.5px solid var(--black); background: var(--white); color: var(--black); padding: 11px 20px; transition: background-color .15s, color .15s, border-color .15s; }
+button { font: 600 .95rem var(--sans); cursor: pointer; border-radius: 999px; border: 1.5px solid var(--black); background: var(--card); color: var(--black); padding: 11px 20px; transition: background-color .15s, color .15s, border-color .15s; }
 button:hover { background: var(--black); color: var(--white); }
 button:disabled { opacity: .6; cursor: progress; }
 button.primary { width: 100%; background: var(--purple); border-color: var(--purple); color: var(--white); padding: 17px; font-size: 1.1rem; font-weight: 700; }
@@ -89,25 +89,25 @@ button.link:hover { background: var(--bad-soft); color: var(--bad); }
 .error { background: var(--bad-soft); border: 1.5px solid var(--bad); color: var(--bad); border-radius: 12px; padding: 11px 14px; margin-bottom: 12px; font-size: .94rem; font-weight: 500; }
 
 /* ===== بطاقة عرض السعر والخصومات القابلة للطي ===== */
-.quote { border: 1.5px solid var(--line); border-radius: 14px; padding: 18px; margin-top: 16px; background: #f8f8fa; }
+.quote { border: 1.5px solid var(--line); border-radius: 14px; padding: 18px; margin-top: 16px; background: var(--white); }
 .quote .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-weight: 700; color: var(--black); }
 details { margin-top: 12px; }
 summary { cursor: pointer; color: var(--purple); font-weight: 600; font-size: .94rem; }
 summary:hover { color: var(--purple-dark); }
 .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 8px; margin-top: 12px; }
-.chips label { background: var(--white); }
+.chips label { background: var(--card); }
 .csv-help { margin: 0 0 4px; }
 
 /* ===== نتائج التحليل: الحكم وبطاقات العروض وشريط الهدف والتقديرات ===== */
 #results { padding-top: 4px; }
 #results > h2 { margin: 28px 0 14px; }
 .verdict { background: var(--black); color: var(--white); border-left: 8px solid var(--warn); border-radius: 6px 18px 18px 6px; padding: 28px 26px; margin-bottom: 8px; }
-.verdict.good { border-left-color: #35c47c; }
-.verdict.warn { border-left-color: #f5b335; }
-.verdict.bad { border-left-color: #ff6b63; }
+.verdict.good { border-left-color: #5cc796; }
+.verdict.warn { border-left-color: #e8b84e; }
+.verdict.bad { border-left-color: #f08078; }
 .verdict h2 { display: block; color: var(--white); font-size: clamp(1.4rem, 4vw, 1.9rem); line-height: 1.2; letter-spacing: -.02em; margin: 0 0 10px; }
-.verdict p { color: #d6d6de; margin: 0; }
-.result { background: var(--white); border: 1.5px solid var(--line); border-radius: 18px; padding: 22px; margin-bottom: 16px; }
+.verdict p { color: #d3d1e0; margin: 0; }
+.result { background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; padding: 22px; margin-bottom: 16px; }
 .result .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; margin-bottom: 10px; }
 .result .name { font-weight: 700; font-size: 1.15rem; color: var(--black); }
 .price { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; color: var(--black); }
@@ -132,7 +132,7 @@ pre.packet { white-space: pre-wrap; background: var(--black); color: var(--white
 footer { background: var(--black); color: var(--white); margin-top: 24px; padding: 36px 16px 44px; }
 .footer-inner { max-width: 880px; margin: 0 auto; }
 .footer-brand { font-weight: 800; font-size: 1.1rem; margin: 0 0 8px; }
-footer .hint { color: #b4b4c0; margin: 0; max-width: 70ch; }
+footer .hint { color: #aeacbf; margin: 0; max-width: 70ch; }
 
 @media (max-width: 520px) {
   .card { padding: 22px 16px; }
@@ -140,4 +140,33 @@ footer .hint { color: #b4b4c0; margin: 0; max-width: 70ch; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* ===== بطاقات السيارات والسائقين وملخص العرض للعميل ===== */
+.mini { border: 1.5px solid var(--line); border-radius: 14px; padding: 16px 18px; margin: 0 0 14px; background: var(--white); }
+.mini .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 700; color: var(--black); }
+.mini .or { color: var(--muted); font-size: .85rem; margin: 2px 0 10px; }
+.summary { background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; padding: 28px 24px; margin: 20px 0; }
+.summary h2 { margin-bottom: 2px; }
+.summary .sub { color: var(--muted); font-size: .92rem; margin: 0 0 18px; }
+.summary dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0 0 18px; }
+.summary dt { color: var(--muted); font-size: .9rem; }
+.summary dd { margin: 0; font-weight: 600; color: var(--black); overflow-wrap: anywhere; }
+.summary .bigprice { font-size: 2.2rem; font-weight: 800; letter-spacing: -.03em; color: var(--black); margin: 0; }
+.summary .fine { color: var(--muted); font-size: .84rem; margin: 14px 0 0; }
+.summary .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+@media print {
+  .hero, footer, .cta-bar, .notice, main > section.card, #results > :not(.summary), .summary .actions { display: none !important; }
+  body { background: #fff; }
+  .summary { border: 0; padding: 0; margin: 0; }
+}
+
+/* ===== بطاقات السيارات والسائقين والطباعة ===== */
+.person + .person { margin-top: 12px; }
+.card > button.secondary { margin-top: 16px; }
+@media print {
+  body * { visibility: hidden; }
+  #summary, #summary * { visibility: visible; }
+  #summary { position: absolute; inset: 0 auto auto 0; width: 100%; border: 0; margin: 0; }
+  .no-print { display: none !important; }
 }

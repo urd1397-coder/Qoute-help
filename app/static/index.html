@@ -3,30 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#000000">
-  <meta name="description" content="BestQoute compares your car insurance quotes and shows every legal discount you can use to lower your monthly price.">
+  <meta name="theme-color" content="#1c1b23">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="BestQoute helps you prepare and compare car insurance quotes for your clients.">
   <!--
     الملف: app/static/index.html — الصفحة الرئيسية (هيكل الواجهة)
-    ما يفعله: يحتوي على الهدف الشهري ونماذج الإدخال (الملف الشخصي، التغطية، العروض) ومكان عرض النتائج.
+    ما يفعله: يحتوي على الهدف الشهري وبيانات العميل والسيارات والسائقين والتغطية وعروض الأسعار، ومكان عرض النتائج وملخص العرض للعميل.
     متى تعدّله: لإضافة حقل أو خانة اختيار جديدة (واربطها بـ app.js وبـ models.py).
+    ملاحظة: بيانات العميل (الاسم والـ VIN والسائقين) تبقى في المتصفح ولا تُرسل إلى الخادم.
   -->
   <title>BestQoute</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%236D28D9'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%236f55d8'/%3E%3Ccircle cx='19' cy='19' r='10.5' fill='none' stroke='%23f6f5fb' stroke-width='3.2'/%3E%3Cpath d='M14.2 19.4l3.6 3.6 7-7.6' fill='none' stroke='%23f6f5fb' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M26.6 26.6l4.6 4.6' fill='none' stroke='%23f6f5fb' stroke-width='3.6' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<!-- ===== القسم الأسود العلوي: الاسم والعنوان وحقل الهدف الشهري ===== -->
+<!-- ===== القسم العلوي الداكن: الشعار والعنوان وحقل الهدف الشهري ===== -->
 <header class="hero">
   <div class="hero-inner">
     <div class="brand">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#7C3AED"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#6f55d8"/><circle cx="19" cy="19" r="10.5" fill="none" stroke="#f6f5fb" stroke-width="3.2"/><path d="M14.2 19.4l3.6 3.6 7-7.6" fill="none" stroke="#f6f5fb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M26.6 26.6l4.6 4.6" fill="none" stroke="#f6f5fb" stroke-width="3.6" stroke-linecap="round"/></svg>
       <span>BestQoute</span>
     </div>
     <h1>Find your lowest legal car insurance price.</h1>
-    <p class="lead">Add the quotes you already have. BestQoute checks every discount you qualify for and shows how close you can get to your target.</p>
+    <p class="lead">Enter your client's details and the real quotes you have. BestQoute checks every discount they qualify for and prepares a clean quote summary.</p>
     <label class="target">
       <span class="target-label">I want to pay no more than</span>
       <span class="money"><span class="cur" aria-hidden="true">$</span><input id="target" type="number" min="1" value="200" inputmode="numeric"><span class="per">per month</span></span>
@@ -35,25 +37,23 @@
 </header>
 
 <main>
-  <p class="notice"><strong>Use true answers only.</strong> Savings here come from legal discounts, timing, coverage choices and shopping around. Misstating details on an application can void a claim or get your policy canceled.</p>
+  <p class="notice"><strong>Use true answers only.</strong> Savings here come from legal discounts, timing, coverage choices and shopping around. Misstating details on an application can void a claim or get a policy canceled. Client details stay in this browser and are not sent to the server.</p>
 
   <section class="card">
-    <!-- ===== القسم 1: الملف الشخصي ===== -->
-    <h2><span class="num">1</span>About you</h2>
-    <p class="hint">Your answers decide which discounts we check.</p>
+    <!-- ===== القسم 1: بيانات العميل والخصومات ===== -->
+    <h2><span class="num">1</span>Client</h2>
+    <p class="hint">The name is used on the quote summary. State and the answers below decide which discounts we check.</p>
     <div class="grid">
+      <label>Client name<input id="p_client" placeholder="Full name" autocomplete="off"></label>
       <label>State (2 letters)<input id="p_state" maxlength="2" placeholder="FL" autocomplete="off"></label>
-      <label>Vehicles<input id="p_vehicles" type="number" min="1" max="10" value="1"></label>
-      <label>Drivers<input id="p_drivers" type="number" min="1" max="10" value="1"></label>
-      <label>Miles driven per year (optional)<input id="p_miles" type="number" min="0" placeholder="12000"></label>
-      <label>Value of your oldest car, $ (optional)<input id="p_value" type="number" min="0" placeholder="4000"></label>
-      <label>Days until your policy starts or renews (optional)<input id="p_days" type="number" min="0" placeholder="14"></label>
+      <label>ZIP code<input id="p_zip" maxlength="10" placeholder="33101" inputmode="numeric" autocomplete="off"></label>
+      <label>Days until the policy starts or renews (optional)<input id="p_days" type="number" min="0" placeholder="14"></label>
     </div>
-    <!-- ===== خانات "ما الصحيح عنك": يقرؤها app.js عبر data-bool وأسماؤها نفس حقول Profile في models.py ===== -->
-    <h3>Which of these are true for you?</h3>
+    <!-- ===== خانات "ما الصحيح عنه": يقرؤها app.js عبر data-bool وأسماؤها نفس حقول Profile في models.py ===== -->
+    <h3>Which of these are true for this client?</h3>
     <div class="checks" id="profile-checks">
       <label><input type="checkbox" data-bool="homeowner"> Homeowner</label>
-      <label><input type="checkbox" data-bool="has_bundle_policy"> Have home/renters policy to bundle</label>
+      <label><input type="checkbox" data-bool="has_bundle_policy"> Has a home/renters policy to bundle</label>
       <label><input type="checkbox" data-bool="employer_or_group"> Employer / alumni / union / professional group</label>
       <label><input type="checkbox" data-bool="military"> Military / veteran</label>
       <label><input type="checkbox" data-bool="good_student"> Good student</label>
@@ -69,9 +69,25 @@
   </section>
 
   <section class="card">
-    <!-- ===== القسم 2: التغطية المطلوبة للمقارنة ===== -->
-    <h2><span class="num">2</span>Coverage to compare</h2>
-    <p class="hint">Leave blank to use the most common coverage among your quotes.</p>
+    <!-- ===== القسم 2: السيارات (الرقم التسلسلي VIN أو السنة والصنع والطراز) ===== -->
+    <h2><span class="num">2</span>Vehicles</h2>
+    <p class="hint">Enter the VIN, or the year, make and model for each vehicle.</p>
+    <div id="vehicles"></div>
+    <button id="add-vehicle" type="button" class="secondary">+ Add vehicle</button>
+  </section>
+
+  <section class="card">
+    <!-- ===== القسم 3: السائقون ===== -->
+    <h2><span class="num">3</span>Drivers</h2>
+    <p class="hint">List everyone who will be driving.</p>
+    <div id="drivers"></div>
+    <button id="add-driver" type="button" class="secondary">+ Add driver</button>
+  </section>
+
+  <section class="card">
+    <!-- ===== القسم 4: التغطية المطلوبة للمقارنة ===== -->
+    <h2><span class="num">4</span>Coverage to compare</h2>
+    <p class="hint">Leave blank to use the most common coverage among the quotes.</p>
     <div class="grid">
       <label>Bodily injury limit<input id="c_bi" placeholder="100/300"></label>
       <label>Property damage limit<input id="c_pd" placeholder="100"></label>
@@ -81,9 +97,9 @@
   </section>
 
   <section class="card">
-    <!-- ===== القسم 3: عروض الأسعار (إضافة يدوية أو استيراد CSV) ===== -->
-    <h2><span class="num">3</span>Your quotes</h2>
-    <p class="hint">Add one card for each quote you have, or import them from a CSV file.</p>
+    <!-- ===== القسم 5: عروض الأسعار (إضافة يدوية أو استيراد CSV) ===== -->
+    <h2><span class="num">5</span>Quotes you have</h2>
+    <p class="hint">Add one card for each real quote from an insurer, or import them from a CSV file.</p>
     <div class="row">
       <button id="add-quote" type="button" class="secondary">+ Add quote</button>
       <label class="file">Import CSV file<input id="csv-file" type="file" accept=".csv,text/csv"></label>
@@ -99,14 +115,14 @@
   <!-- ===== شريط الزر السفلي الثابت: رسالة الخطأ وزر البحث عن أرخص سعر ===== -->
   <div class="cta-bar">
     <div id="error" class="error" role="alert" hidden></div>
-    <button id="analyze" class="primary" type="button">Find my lowest price</button>
+    <button id="analyze" class="primary" type="button">Find the lowest price</button>
   </div>
 
-  <!-- ===== مكان عرض النتائج (يملؤه app.js) ===== -->
+  <!-- ===== مكان عرض النتائج وملخص العرض للعميل (يملؤه app.js) ===== -->
   <section id="results" hidden></section>
 </main>
 
-<!-- ===== التذييل الأسود: إخلاء المسؤولية ===== -->
+<!-- ===== التذييل الداكن: إخلاء المسؤولية ===== -->
 <footer>
   <div class="footer-inner">
     <p class="footer-brand">BestQoute</p>
