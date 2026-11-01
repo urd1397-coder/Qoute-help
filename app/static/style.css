@@ -189,4 +189,5 @@ button.chip { padding: 6px 14px; font-size: .85rem; font-weight: 500; }
 .plan-table input { width: 110px; padding: 8px 10px; }
 #plan-results { margin-top: 18px; }
 .warn-note { color: var(--warn); background: var(--warn-soft); border-radius: 10px; padding: 10px 12px; font-size: .9rem; font-weight: 500; }
+.success-note { color: var(--good); background: var(--good-soft); border-radius: 10px; padding: 10px 12px; font-size: .9rem; font-weight: 500; }
 #planner #plan-best { margin-top: 12px; }

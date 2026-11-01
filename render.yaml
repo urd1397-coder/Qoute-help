@@ -1,24 +1,13 @@
-# ============================================================
-# الملف: render.yaml — إعدادات النشر على Render
-# ما يفعله: يخبر Render كيف يبني التطبيق ويشغّله (الخطة المجانية، أمر التشغيل، مسار فحص الصحة).
-# متى تعدّله: لتغيير الخطة أو اسم الخدمة أو أمر التشغيل.
-# ============================================================
 services:
   - type: web
-    name: insurance-savings-engine
-    # بيئة التشغيل: بايثون
-    runtime: python
-    # الخطة المجانية
+    name: bestqoute-browser
+    runtime: docker
     plan: free
-    # أمر البناء: تثبيت المكتبات
-    buildCommand: pip install -r requirements.txt
-    # أمر التشغيل: يشغّل الخادم على المنفذ الذي يحدده Render
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 75 --timeout-graceful-shutdown 10
-    # مسار فحص الصحة (يتحقق Render و UptimeRobot من أن التطبيق يعمل)
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /api/health
-    # متغيرات البيئة (نسخة بايثون وإعدادات السجلات)
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
       - key: PYTHONUNBUFFERED
         value: "1"
+      - key: BESTQOUTE_PASSWORD
+        generateValue: true

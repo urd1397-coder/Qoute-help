@@ -71,4 +71,5 @@ class CompareRequest(BaseModel):
     profile: Profile = Field(default_factory=Profile)
     quotes: List[Quote] = Field(..., min_length=1, max_length=50)
     target_monthly: float = Field(200, gt=0, lt=5000)
+    acceptable_overage_monthly: float = Field(50, ge=0, le=2000)
     desired_coverage: Coverage = Field(default_factory=Coverage)

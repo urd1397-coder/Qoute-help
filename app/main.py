@@ -13,11 +13,41 @@ from pathlib import Path
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from .engine import DISCLAIMER, compare
 from .levers import LEVERS
 from .models import CompareRequest, Quote
+
+
+
+class BrowserSearchRequest(BaseModel):
+    """Short-lived browser quote request; submitted values are never persisted."""
+    provider_ids: list[str] = Field(..., min_length=1, max_length=5)
+    form_data: dict[str, str] = Field(default_factory=dict)
+    authorized_to_request_quote: bool = False
+
+    @field_validator("form_data")
+    @classmethod
+    def _safe_form_data(cls, value: dict[str, str]) -> dict[str, str]:
+        allowed = {
+            "state", "zip_code", "annual_miles", "vehicles", "drivers",
+            "vehicle_year", "vehicle_make", "vehicle_model",
+            "bodily_injury_limit", "property_damage_limit",
+            "comp_deductible", "collision_deductible", "driver_age_range",
+        }
+        blocked_terms = ("ssn", "social", "password", "license_number", "credit_card", "payment")
+        cleaned = {}
+        for key, raw in value.items():
+            key = str(key).strip().lower()
+            if key not in allowed or any(term in key for term in blocked_terms):
+                raise ValueError(f"Unsupported browser form field: {key}")
+            text = str(raw).strip()
+            if len(text) > 160:
+                raise ValueError(f"Browser form field is too long: {key}")
+            cleaned[key] = text
+        return cleaned
+
 
 # ===== الإعدادات: مسار الملفات الثابتة وحدود ملف CSV =====
 STATIC_DIR = Path(__file__).parent / "static"
@@ -25,7 +55,7 @@ MAX_CSV_BYTES = 1_000_000
 MAX_CSV_ROWS = 50
 
 # ===== إنشاء التطبيق وربط مجلد الملفات الثابتة (CSS و JS) =====
-app = FastAPI(title="BestQoute", version="0.3.0")
+app = FastAPI(title="BestQoute - Insurance Quote Optimizer", version="0.5.0")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # ===== حماية الموقع بكلمة مرور: المالك فقط يفتح الموقع =====
@@ -75,7 +105,60 @@ def health():
     return {"status": "ok", "version": app.version}
 
 
+# ===== البحث الآلي عبر واجهات شركات التأمين المصرّح بها =====
+@app.get("/api/browser/providers")
+def browser_providers():
+    from .browser_jobs import provider_list
+    return {
+        "browser_automation": True,
+        "engine": "Playwright Chromium",
+        "providers": provider_list(),
+        "message": (
+            "No approved carrier browser adapters are configured yet. The browser engine is installed, "
+            "but a carrier-specific adapter and authorized quote flow are required before live searches."
+            if not provider_list() else "Approved browser quote providers are ready."
+        ),
+        "security": "No CAPTCHA or access-control bypass; human verification pauses the job; no purchase or binding actions.",
+    }
+
+
+@app.post("/api/browser/search", status_code=202)
+async def start_browser_search(req: BrowserSearchRequest):
+    if not req.authorized_to_request_quote:
+        raise HTTPException(400, "Explicit authorization to request an insurance quote is required.")
+    from .browser_jobs import create_job
+    try:
+        return await create_job(req.provider_ids, req.form_data)
+    except ValueError as exc:
+        raise HTTPException(503, str(exc))
+    except RuntimeError as exc:
+        raise HTTPException(429, str(exc))
+
+
+@app.get("/api/browser/jobs/{job_id}")
+def browser_job_status(job_id: str):
+    from .browser_jobs import get_job
+    job = get_job(job_id)
+    if not job:
+        raise HTTPException(404, "Browser search job was not found or has expired after a server restart.")
+    return job
+
+
 # ===== قائمة الخصومات والخيارات المتاحة =====
+@app.get("/api/search/status")
+def search_status():
+    """Report API and browser-search readiness without pretending quotes are live."""
+    from .search_engine import provider_status
+    from .browser_jobs import provider_list
+    status = provider_status()
+    status["browser_automation"] = {
+        "engine": "Playwright Chromium",
+        "enabled": bool(provider_list()),
+        "providers": provider_list(),
+    }
+    return status
+
+
 @app.get("/api/levers")
 def levers():
     """Catalog of legitimate savings levers (illustrative ranges, not guarantees)."""
@@ -119,7 +202,7 @@ async def import_csv(file: UploadFile = File(...)):
 
     quotes, errors = [], []
     for i, row in enumerate(reader, start=2):
-        if len(quotes) >= MAX_CSV_ROWS:
+        if i - 2 >= MAX_CSV_ROWS:
             errors.append({"row": i, "error": f"Row limit of {MAX_CSV_ROWS} reached; remaining rows skipped."})
             break
         r = _clean(row)

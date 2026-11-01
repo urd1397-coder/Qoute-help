@@ -115,7 +115,7 @@ def _lever_dict(lv: Lever) -> dict:
 
 # ===== تحليل كل عرض سعر على حدة (التحذيرات، الخصومات، التقديرات) =====
 # ---------- per-quote analysis ----------
-def analyze_quote(q: Quote, profile: Profile, ref: Dict[str, str], target: float) -> dict:
+def analyze_quote(q: Quote, profile: Profile, ref: Dict[str, str], target: float, acceptable_overage: float) -> dict:
     premium, fees = q.monthly_premium, q.fees_monthly
     effective = premium + fees
     applied_ids = set(q.applied_discounts)
@@ -125,17 +125,27 @@ def analyze_quote(q: Quote, profile: Profile, ref: Dict[str, str], target: float
     comparable = True
     for field, label in COVERAGE_FIELDS:
         val = getattr(q, field)
-        if not val:
-            warnings.append(f"{label} not entered, so this quote can't be verified as comparable.")
-        elif field in ref and _norm(field, val) != _norm(field, ref[field]):
+        if field not in ref:
             comparable = False
-            warnings.append(f"{label} is {val}, but the comparison coverage is {ref[field]}. Not an apples-to-apples price.")
-    if q.vehicles is not None and q.vehicles != profile.vehicles:
+            warnings.append(f"{label} has no comparison value. Enter the required coverage or provide it on the quotes.")
+        elif not val:
+            comparable = False
+            warnings.append(f"{label} is missing from this quote; it cannot be treated as a coverage match.")
+        elif _norm(field, val) != _norm(field, ref[field]):
+            comparable = False
+            warnings.append(f"{label} is {val}, but the requested comparison coverage is {ref[field]}. This quote is excluded from matched-coverage ranking.")
+    if q.vehicles is None:
         comparable = False
-        warnings.append(f"Quote covers {q.vehicles} vehicle(s) but your profile has {profile.vehicles}.")
-    if q.drivers is not None and q.drivers != profile.drivers:
+        warnings.append("Vehicle count is missing from this quote; exact policy scope cannot be verified.")
+    elif q.vehicles != profile.vehicles:
         comparable = False
-        warnings.append(f"Quote covers {q.drivers} driver(s) but your profile has {profile.drivers}.")
+        warnings.append(f"Quote covers {q.vehicles} vehicle(s) but the requested profile has {profile.vehicles}.")
+    if q.drivers is None:
+        comparable = False
+        warnings.append("Driver count is missing from this quote; exact policy scope cannot be verified.")
+    elif q.drivers != profile.drivers:
+        comparable = False
+        warnings.append(f"Quote covers {q.drivers} driver(s) but the requested profile has {profile.drivers}.")
     discount_ids = {lv.id for lv in DISCOUNTS}
     for did in sorted(applied_ids):
         if did not in discount_ids:
@@ -193,6 +203,7 @@ def analyze_quote(q: Quote, profile: Profile, ref: Dict[str, str], target: float
         "programs": [_lever_dict(lv) for lv in programs],
         "projected": projected,
         "meets_target_now": effective <= target,
+        "meets_fallback_range": effective <= target + acceptable_overage,
         "meets_target_conservative": projected["conservative"] <= target,
         "meets_target_expected": projected["expected"] <= target,
         "meets_target_with_tradeoffs": projected["with_tradeoffs"] <= target,
@@ -202,7 +213,7 @@ def analyze_quote(q: Quote, profile: Profile, ref: Dict[str, str], target: float
 
 # ===== الحكم النهائي: هل نصل إلى الهدف الشهري؟ =====
 # ---------- verdict ----------
-def _verdict(best: dict, target: float) -> dict:
+def _verdict(best: dict, target: float, acceptable_overage: float) -> dict:
     gap_now = round(best["effective_monthly"] - target, 2)
     p = best["projected"]
     c = best["company"]
@@ -210,6 +221,11 @@ def _verdict(best: dict, target: float) -> dict:
         return {"status": "under_target_now",
                 "headline": f"{c} is already at ${best['effective_monthly']:.2f}/mo, under your ${target:.0f} target.",
                 "detail": "Confirm the final price, fees and effective date with the insurer before buying.",
+                "gap": gap_now}
+    if best["effective_monthly"] <= target + acceptable_overage:
+        return {"status": "within_fallback_range",
+                "headline": f"{c} is ${best['effective_monthly']:.2f}/mo: above the ${target:.0f} target but within your ${target + acceptable_overage:.0f} fallback limit.",
+                "detail": "The requested coverage must remain unchanged. Confirm this exact coverage and the final price with the insurer before buying.",
                 "gap": gap_now}
     if best["meets_target_conservative"]:
         return {"status": "reachable",
@@ -282,17 +298,24 @@ def build_packet(best: dict, profile: Profile, ref: Dict[str, str], target: floa
 # ---------- entry point ----------
 def compare(req: CompareRequest) -> dict:
     ref = reference_coverage(req.quotes, req.desired_coverage)
-    analyzed = [analyze_quote(q, req.profile, ref, req.target_monthly) for q in req.quotes]
-    analyzed.sort(key=lambda r: (not r["comparable"], r["projected"]["expected"], r["effective_monthly"]))
+    analyzed = [analyze_quote(q, req.profile, ref, req.target_monthly, req.acceptable_overage_monthly) for q in req.quotes]
+    # Actual all-in quote price decides ranking. Projected discounts are not guaranteed
+    # and must never make an unconfirmed estimate outrank a real lower premium.
+    analyzed.sort(key=lambda r: (not r["comparable"], r["effective_monthly"]))
     for i, r in enumerate(analyzed, 1):
         r["rank"] = i
-    best = analyzed[0]
-    comparable_found = best["comparable"]
-    verdict = _verdict(best, req.target_monthly)
+    comparable_quotes = [r for r in analyzed if r["comparable"]]
+    best = comparable_quotes[0] if comparable_quotes else analyzed[0]
+    comparable_found = bool(comparable_quotes)
+    verdict = _verdict(best, req.target_monthly, req.acceptable_overage_monthly)
     if not comparable_found:
-        verdict["detail"] += " Note: no quote matched the comparison coverage exactly."
+        verdict["status"] = "no_comparable_quote"
+        verdict["headline"] = "No quote can yet be confirmed as matching the requested coverage."
+        verdict["detail"] = "Missing or different coverage details, vehicle count, or driver count prevent a fair price comparison. Do not treat the cheapest incomplete quote as a valid match."
     return {
         "target": req.target_monthly,
+        "acceptable_overage_monthly": req.acceptable_overage_monthly,
+        "fallback_limit": round(req.target_monthly + req.acceptable_overage_monthly, 2),
         "reference_coverage": ref,
         "verdict": verdict,
         "results": analyzed,

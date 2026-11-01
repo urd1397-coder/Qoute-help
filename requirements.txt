@@ -9,3 +9,6 @@ uvicorn[standard]>=0.29
 python-multipart>=0.0.9
 # التحقق من صحة البيانات (النسخة 2 فقط)
 pydantic>=2.6,<3
+
+# متصفح Chromium آلي عبر Playwright
+playwright>=1.48,<2

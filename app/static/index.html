@@ -32,12 +32,13 @@
     <label class="target">
       <span class="target-label">I want to pay no more than</span>
       <span class="money"><span class="cur" aria-hidden="true">$</span><input id="target" type="number" min="1" value="200" inputmode="numeric"><span class="per">per month</span></span>
+      <p class="hint" style="color:#c9c7d8;margin-top:10px">Fallback limit: target + $50/month (for a $200 target, up to $250) — only with the exact requested coverage.</p>
     </label>
   </div>
 </header>
 
 <main>
-  <p class="notice"><strong>Use true answers only.</strong> Savings here come from legal discounts, timing, coverage choices and shopping around. Misstating details on an application can void a claim or get a policy canceled. Client details stay in this browser and are not sent to the server.</p>
+  <p class="notice"><strong>Use true answers only.</strong> Savings here come from legitimate discounts and shopping around. Misstating details can void a claim or get a policy canceled. Name, ZIP, VIN, and driver/vehicle identifiers stay in this browser in this version. State, counts, selected eligibility answers, and quote details are sent to the protected server for comparison.</p>
 
   <section class="card">
     <!-- ===== القسم 1: بيانات العميل والخصومات ===== -->
@@ -87,7 +88,7 @@
   <section class="card">
     <!-- ===== القسم 4: التغطية المطلوبة للمقارنة ===== -->
     <h2><span class="num">4</span>Coverage to compare</h2>
-    <p class="hint">Leave blank to use the most common coverage among the quotes.</p>
+    <p class="hint">Enter the exact coverage you want. If left blank, BestQoute can infer a comparison value from entered quotes; any quote missing a coverage value or vehicle/driver count is marked unverified and cannot rank as a match.</p>
     <div class="grid">
       <label>Bodily injury limit<input id="c_bi" placeholder="100/300"></label>
       <label>Property damage limit<input id="c_pd" placeholder="100"></label>
@@ -96,9 +97,22 @@
     </div>
   </section>
 
+  <section class="card" id="automatic-search">
+    <h2><span class="num">5</span>Automatic carrier search</h2>
+    <p class="hint">BestQoute's Playwright browser engine is designed to navigate approved insurer quote forms, read the returned price and coverage, and pause if a human security check appears. It never purchases or binds a policy.</p>
+    <div id="browser-search-status" class="warn-note" role="status">Checking browser engine and approved carrier adapters...</div>
+    <div id="browser-provider-list" class="checks"></div>
+    <label class="checks" style="display:flex; margin-top:14px">
+      <span><input id="browser-consent" type="checkbox"> I authorize BestQoute to submit a quote request using the information I provided. I understand this does not purchase or bind a policy.</span>
+    </label>
+    <button id="browser-search-button" class="primary" type="button" disabled>Search approved insurers</button>
+    <div id="browser-job-status" role="status" aria-live="polite"></div>
+    <p class="hint">A carrier-specific adapter and permission to use its quote flow are required before that carrier can be searched. No real carrier is represented as connected until configured and tested.</p>
+  </section>
+
   <section class="card" id="planner">
     <!-- ===== القسم 5: مخطِّط العروض: كل الطرق الصادقة لخفض السعر ===== -->
-    <h2><span class="num">5</span>Quote plan</h2>
+    <h2><span class="num">6</span>Quote plan</h2>
     <p class="hint">Builds the list of honest ways to lower this client's price. You ask each insurer for those versions, enter the real prices, and BestQoute finds the cheapest and what moved the price. Only the insurer can issue the actual quote.</p>
     <button id="build-plan" type="button" class="secondary">Build the quote plan</button>
     <div id="plan-body" hidden>
@@ -117,8 +131,8 @@
 
   <section class="card">
     <!-- ===== القسم 6: عروض الأسعار (إضافة يدوية أو استيراد CSV) ===== -->
-    <h2><span class="num">6</span>Quotes you have</h2>
-    <p class="hint">Add one card for each real quote from an insurer, or import them from a CSV file.</p>
+    <h2><span class="num">7</span>Quotes you have</h2>
+    <p class="hint">Add one card for each real quote from an insurer, or import them from a CSV file. Enter all four coverage fields plus the number of vehicles and drivers on each quote to verify an exact match.</p>
     <div class="row">
       <button id="add-quote" type="button" class="secondary">+ Add quote</button>
       <label class="file">Import CSV file<input id="csv-file" type="file" accept=".csv,text/csv"></label>
@@ -151,5 +165,6 @@
 <!-- ===== ملف الجافاسكربت ===== -->
 <script src="/static/app.js"></script>
 <script src="/static/planner.js"></script>
+<script src="/static/browser-search.js"></script>
 </body>
 </html>
